@@ -55,6 +55,8 @@ export const themes = {
   }),
 };
 
+export type AppTheme = typeof themes.light;
+
 export const CustomLightTheme = {
   ...DefaultTheme,
   colors: {

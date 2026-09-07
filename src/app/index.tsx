@@ -1,5 +1,5 @@
-import "../../global.css";
+import { Redirect } from "expo-router";
 
-export default function HomeScreen() {
-  return <div className="flex-1 bg-primary"></div>;
+export default function Index() {
+  return <Redirect href="/(main)" />;
 }
