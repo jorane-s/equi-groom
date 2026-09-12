@@ -1,7 +1,8 @@
 import { TabsMovingBackground } from "@/components/tabs-moving-background";
-import { Href } from "expo-router";
+import Header from "@/components/ui/header";
+import { TABS } from "@/constants/tabs.constants";
 import { TabList, Tabs, TabSlot, TabTrigger } from "expo-router/ui";
-import { FC, useState } from "react";
+import { useState } from "react";
 import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -9,42 +10,9 @@ import Animated, {
   withSpring,
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { SvgProps } from "react-native-svg";
 import Profil from "../../../assets/icons/profil.svg";
 import { useAppTheme } from "../../hooks/use-app-theme";
 
-interface Tab {
-  id: string;
-  label: string;
-  route: Href;
-  icon: FC<SvgProps>;
-}
-const TABS: Tab[] = [
-  {
-    id: "profil",
-    label: "Profil",
-    route: "/(main)/profil",
-    icon: Profil,
-  },
-  {
-    id: "memo",
-    label: "Mémo",
-    route: "/(main)/memo",
-    icon: Profil,
-  },
-  {
-    id: "index",
-    label: "Accueil",
-    route: "/(main)",
-    icon: Profil,
-  },
-  {
-    id: "appointment",
-    label: "Rendez-vous",
-    route: "/(main)/appointment",
-    icon: Profil,
-  },
-];
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const TABS_COUNT = 4;
 const TAB_WIDTH = SCREEN_WIDTH / TABS_COUNT;
@@ -164,65 +132,70 @@ export default function MainLayout() {
   };
 
   return (
-    <Tabs style={styles.tabs}>
-      <View style={styles.content}>
-        <TabSlot />
-      </View>
-      <View style={[styles.bottomContainer, { paddingBottom: insets.bottom }]}>
-        <View style={styles.topBandContainer} />
-
-        <View style={styles.svgContainer}>
-          <Animated.View style={[styles.movingTab, animatedStyle]}>
-            <TabsMovingBackground
-              width={TAB_WIDTH}
-              height={totalSvgHeight}
-              fillColor={colors.secondary}
-            />
-            <View style={styles.circle}>{getCurrentTabIcon()}</View>
-          </Animated.View>
+    <View>
+      <Header></Header>
+      <Tabs style={styles.tabs}>
+        <View style={styles.content}>
+          <TabSlot />
         </View>
-      </View>
-      <TabList style={styles.tabList}>
-        {TABS.map((tab, index) => {
-          return (
-            <TabTrigger
-              key={tab.id}
-              name={tab.label}
-              href={tab.route}
-              style={styles.trigger}
-              asChild
-            >
-              <Pressable
-                onPress={() => handleTabPress(index)}
+        <View
+          style={[styles.bottomContainer, { paddingBottom: insets.bottom }]}
+        >
+          <View style={styles.topBandContainer} />
+
+          <View style={styles.svgContainer}>
+            <Animated.View style={[styles.movingTab, animatedStyle]}>
+              <TabsMovingBackground
+                width={TAB_WIDTH}
+                height={totalSvgHeight}
+                fillColor={colors.secondary}
+              />
+              <View style={styles.circle}>{getCurrentTabIcon()}</View>
+            </Animated.View>
+          </View>
+        </View>
+        <TabList style={styles.tabList}>
+          {TABS.map((tab, index) => {
+            return (
+              <TabTrigger
+                key={tab.id}
+                name={tab.label}
+                href={tab.route}
                 style={styles.trigger}
+                asChild
               >
-                <View style={styles.iconContainer}>
-                  {currentTab !== tab.id && (
-                    <Profil
-                      width={24}
-                      height={24}
-                      fill={
-                        tab.id === currentTab ? colors.primary : colors.text
-                      }
-                    />
-                  )}
-                </View>
-                <Text
-                  style={[
-                    styles.tabLabel,
-                    {
-                      color:
-                        currentTab === tab.id ? colors.primary : colors.text,
-                    },
-                  ]}
+                <Pressable
+                  onPress={() => handleTabPress(index)}
+                  style={styles.trigger}
                 >
-                  {tab.label}
-                </Text>
-              </Pressable>
-            </TabTrigger>
-          );
-        })}
-      </TabList>
-    </Tabs>
+                  <View style={styles.iconContainer}>
+                    {currentTab !== tab.id && (
+                      <Profil
+                        width={24}
+                        height={24}
+                        fill={
+                          tab.id === currentTab ? colors.primary : colors.text
+                        }
+                      />
+                    )}
+                  </View>
+                  <Text
+                    style={[
+                      styles.tabLabel,
+                      {
+                        color:
+                          currentTab === tab.id ? colors.primary : colors.text,
+                      },
+                    ]}
+                  >
+                    {tab.label}
+                  </Text>
+                </Pressable>
+              </TabTrigger>
+            );
+          })}
+        </TabList>
+      </Tabs>
+    </View>
   );
 }
