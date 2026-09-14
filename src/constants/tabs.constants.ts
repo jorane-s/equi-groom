@@ -31,5 +31,5 @@ export const TABS: Tab[] = [
 
 export const TABS_IMG: { [key: string]: ImageSourcePropType } = {
   index: require("@/assets/images/index.jpg"),
-  sante: require("@/assets/images/sante.jp g"),
+  sante: require("@/assets/images/sante.jpg"),
 };

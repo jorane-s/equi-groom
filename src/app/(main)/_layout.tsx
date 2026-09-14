@@ -45,12 +45,23 @@ export default function MainLayout() {
   const totalSvgHeight = bandHeight + dropDepth;
 
   const styles = StyleSheet.create({
+    mainContainer: {
+      height: "100%",
+    },
     tabs: {
       flex: 1,
       backgroundColor: "#FFFFFF",
+      borderRadius: "8%",
+      position: "absolute",
+      bottom: 0,
+      width: "100%",
+      height: "80%",
+      zIndex: 1,
     },
     content: {
       flex: 1,
+      paddingTop: 18,
+      paddingLeft: 40,
     },
     bottomContainer: {
       position: "absolute",
@@ -132,7 +143,7 @@ export default function MainLayout() {
   };
 
   return (
-    <View>
+    <View style={styles.mainContainer}>
       <Header></Header>
       <Tabs style={styles.tabs}>
         <View style={styles.content}>
