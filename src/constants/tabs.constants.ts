@@ -1,4 +1,4 @@
-import { Tab } from "@/models/tabs.model";
+import { Tab } from "@/models/tabs";
 import { ImageSourcePropType } from "react-native";
 import Profil from "../../assets/icons/profil.svg";
 
@@ -30,6 +30,6 @@ export const TABS: Tab[] = [
 ];
 
 export const TABS_IMG: { [key: string]: ImageSourcePropType } = {
-  index: require("@/assets/images/index.jpg"),
-  sante: require("@/assets/images/sante.jpg"),
+  index: require("@/assets/images/index.png"),
+  sante: require("@/assets/images/sante.png"),
 };
