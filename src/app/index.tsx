@@ -1,3 +1,5 @@
-import { Redirect } from "expo-router";
+import { Redirect, Stack } from "expo-router";
 
-export default function Index() {}
+export default function Index() {
+  return <Stack />;
+}

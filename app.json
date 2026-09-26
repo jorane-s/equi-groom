@@ -40,7 +40,13 @@
         }
       ],
       "expo-font",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.TON_CLIENT_ID_IOS"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,
