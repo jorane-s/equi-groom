@@ -5,6 +5,7 @@ import {
   View,
   StyleSheet,
   TextInput,
+  Platform,
 } from "react-native";
 import {
   useFonts,
@@ -25,6 +26,7 @@ import {
 } from "@react-native-google-signin/google-signin";
 import CurvedBottomImage from "@/components/ui/curved-bottom-image";
 import { Link } from "expo-router";
+import { Image } from "expo-image";
 
 export default function Login() {
   useEffect(() => {
@@ -101,16 +103,23 @@ export default function Login() {
         control={control}
         name="email"
         render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
-            placeholder="Email"
-            style={styles.input}
-            placeholderTextColor="#888"
-            value={value}
-            onBlur={onBlur}
-            onChangeText={onChange}
-            autoCapitalize="none"
-            keyboardType="email-address"
-          />
+          <View style={styles.inputContainer}>
+            <Image
+              source={require("@/assets/icons/box.png")}
+              style={styles.inputIcon}
+            />
+            <TextInput
+              placeholder="Email"
+              style={styles.input}
+              placeholderTextColor="#888"
+              value={value}
+              onBlur={onBlur}
+              onChangeText={onChange}
+              autoCapitalize="none"
+              keyboardType="email-address"
+              underlineColorAndroid="transparent"
+            />
+          </View>
         )}
       />
       {errors.email && (
@@ -120,15 +129,22 @@ export default function Login() {
         control={control}
         name="password"
         render={({ field: { onChange, onBlur, value } }) => (
-          <TextInput
-            placeholder="Mot de passe"
-            secureTextEntry
-            style={styles.input}
-            placeholderTextColor="#888"
-            value={value}
-            onBlur={onBlur}
-            onChangeText={onChange}
-          />
+          <View style={styles.inputContainer}>
+            <Image
+              source={require("@/assets/icons/lock.png")}
+              style={styles.inputIcon}
+            />
+            <TextInput
+              placeholder="Mot de passe"
+              secureTextEntry
+              style={styles.input}
+              placeholderTextColor="#888"
+              value={value}
+              onBlur={onBlur}
+              onChangeText={onChange}
+              underlineColorAndroid="transparent"
+            />
+          </View>
         )}
       />
       {errors.password && (
@@ -179,15 +195,32 @@ const styles = StyleSheet.create({
     fontFamily: "Fredoka_300Light",
     marginTop: 10,
   },
+  inputContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F5EFEB",
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#D4C5B9",
+    height: 40,
+    paddingHorizontal: 5,
+    width: "100%",
+    marginBottom: 15,
+  },
+  inputIcon: {
+    padding: 10,
+    margin: 5,
+    height: 25,
+    width: 25,
+    resizeMode: "stretch",
+    alignItems: "center",
+  },
   input: {
     fontFamily: "Quicksand_500Medium",
     width: "100%",
-    backgroundColor: "#F5EFEB",
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: "#D4C5B9",
+    flex: 1,
+    padding: 10,
   },
   button: {
     backgroundColor: "#D97D65",
