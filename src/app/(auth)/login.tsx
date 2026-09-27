@@ -1,11 +1,10 @@
-import { Text } from "@expo/ui";
 import {
   ActivityIndicator,
   TouchableOpacity,
   View,
   StyleSheet,
   TextInput,
-  Platform,
+  Text,
 } from "react-native";
 import {
   useFonts,
@@ -40,6 +39,7 @@ export default function Login() {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginFormModel>({
+    mode: "onBlur",
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
@@ -51,7 +51,7 @@ export default function Login() {
   });
 
   if (!fontsLoaded) {
-    return null; // ou un composant de chargement
+    return null;
   }
 
   const handleGoogleLogin = async () => {
@@ -98,7 +98,7 @@ export default function Login() {
       <CurvedBottomImage
         imageSrc={require("@/assets/images/login.png")}
       ></CurvedBottomImage>
-      <Text textStyle={styles.title}>Bienvenue dans Equigroom</Text>
+      <Text style={styles.title}>Bienvenue dans Equigroom</Text>
       <Controller
         control={control}
         name="email"
@@ -118,13 +118,12 @@ export default function Login() {
               autoCapitalize="none"
               keyboardType="email-address"
               underlineColorAndroid="transparent"
+              inputMode={"email"}
             />
           </View>
         )}
       />
-      {errors.email && (
-        <Text textStyle={styles.error}>{errors.email.message}</Text>
-      )}
+      {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
       <Controller
         control={control}
         name="password"
@@ -148,7 +147,7 @@ export default function Login() {
         )}
       />
       {errors.password && (
-        <Text textStyle={styles.error}>{errors.password.message}</Text>
+        <Text style={styles.error}>{errors.password.message}</Text>
       )}
       <TouchableOpacity
         style={styles.button}
@@ -158,7 +157,7 @@ export default function Login() {
         {loading ? (
           <ActivityIndicator color="#FFFFFF" />
         ) : (
-          <Text textStyle={styles.buttonText}>Se connecter</Text>
+          <Text style={styles.buttonText}>Se connecter</Text>
         )}
       </TouchableOpacity>
       <GoogleSigninButton

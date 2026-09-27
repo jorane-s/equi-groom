@@ -9,6 +9,7 @@ import { useShallow } from "zustand/react/shallow";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useEffect } from "react";
 import { supabaseClient } from "@/lib/supabase/supabase-client";
+import "../../global.css";
 
 SplashScreen.preventAutoHideAsync();
 
