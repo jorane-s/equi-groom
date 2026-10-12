@@ -1,7 +1,7 @@
 import { Stack, ThemeProvider, useRouter, useSegments } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { useColorScheme } from "react-native";
-
+import * as Linking from "expo-linking";
 import { CustomDarkTheme, CustomLightTheme } from "@/color-theme";
 import { AnimatedSplashOverlay } from "@/components/animated-icon";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -24,6 +24,34 @@ export default function RootLayout() {
     })),
   );
 
+  useEffect(() => {
+    const handleDeepLink = async (url: string) => {
+      const parsed = Linking.parse(url);
+      const code = parsed.queryParams?.code;
+
+      if (typeof code === "string") {
+        const { data, error } =
+          await supabaseClient.auth.exchangeCodeForSession(code);
+
+        if (error) {
+          console.error("Erreur validation lien :", error.message);
+        } else if (data.session) {
+          console.log("Connecté via lien !");
+        }
+      }
+    };
+
+    const subscription = Linking.addEventListener("url", (event) => {
+      handleDeepLink(event.url);
+    });
+
+    Linking.getInitialURL().then((url) => {
+      if (url) handleDeepLink(url);
+    });
+
+    return () => subscription.remove();
+  }, []);
+
   // Handle current session and session change
   useEffect(() => {
     supabaseClient.auth.getSession().then((response) => {
@@ -33,9 +61,10 @@ export default function RootLayout() {
     const {
       data: { subscription },
     } = supabaseClient.auth.onAuthStateChange((event, session) => {
-      setSession(session);
+      if (event === "SIGNED_IN" && session) {
+        setSession(session);
+      }
     });
-
     return () => {
       subscription.unsubscribe();
     };
@@ -43,6 +72,7 @@ export default function RootLayout() {
 
   // Router redirection on session change
   useEffect(() => {
+    if (session === undefined) return;
     const inAuthGroup = segments[0] === "(auth)";
 
     if (!session && !inAuthGroup) {

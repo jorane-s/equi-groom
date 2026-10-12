@@ -73,9 +73,7 @@ export default function Login() {
       if (error.code === statusCodes.IN_PROGRESS) {
         return;
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        // play services not available or outdated
       } else {
-        // some other error happened
       }
     }
   };

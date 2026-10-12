@@ -18,6 +18,7 @@ import {
 import { Quicksand_500Medium } from "@expo-google-fonts/quicksand";
 import { Image } from "expo-image";
 import { supabaseClient } from "@/lib/supabase/supabase-client";
+import * as Linking from "expo-linking";
 
 export default function Register() {
   const [step, setStep] = useState<number>(1);
@@ -52,12 +53,13 @@ export default function Register() {
   };
 
   const onSubmit = async (formData: RegisterFormSchema) => {
-    console.log("submit");
+    const redirectUrl = Linking.createURL("/(main)");
     const { data, error } = await supabaseClient.auth.signUp({
       email: formData.email,
       password: formData.password,
       ...(formData.phone && { phone: formData.phone }),
       options: {
+        emailRedirectTo: redirectUrl,
         data: {
           first_name: formData.firstName,
           last_name: formData.lastName,
