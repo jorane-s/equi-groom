@@ -11,9 +11,21 @@
     --secondary-color-light: #fffaf5;
     --secondary-color-darker: #e2d4c7;
     --accent-color-default: #f2d3c7;
-    --card-color-default: #FFFFF;
+    --card-color-default: #ffffff;
     --text-color-default: #1e293b;
     --text-sub-color-default: #64748b;
+    --background-color-default: #fdfbf7;
+    --input-background-color-default: #f5efeb;
+    --border-color-default: #d4c5b9;
+    --heading-color-default: #4a3525;
+    --brand-color-default: #d97d65;
+    --brand-color-darker: #c86d51;
+    --muted-color-default: #8c6d62;
+    --inactive-color-default: #e5d6c5;
+    --error-color-default: #b4533a;
+    --error-color-light: #fbe9e3;
+    --success-color-default: #4f6b3a;
+    --success-color-light: #eaf1e2;
   }
 
   .dark {
@@ -24,9 +36,21 @@
     --secondary-color-light: #fffaf5;
     --secondary-color-darker: #e2d4c7;
     --accent-color-default: #f2d3c7;
-    --card-color-default: #FFFFF;
+    --card-color-default: #ffffff;
     --text-color-default: #1e293b;
     --text-sub-color-default: #64748b;
+    --background-color-default: #fdfbf7;
+    --input-background-color-default: #f5efeb;
+    --border-color-default: #d4c5b9;
+    --heading-color-default: #4a3525;
+    --brand-color-default: #d97d65;
+    --brand-color-darker: #c86d51;
+    --muted-color-default: #8c6d62;
+    --inactive-color-default: #e5d6c5;
+    --error-color-default: #b4533a;
+    --error-color-light: #fbe9e3;
+    --success-color-default: #4f6b3a;
+    --success-color-light: #eaf1e2;
   }
 }
 

@@ -9,6 +9,12 @@ import { useShallow } from "zustand/react/shallow";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useEffect } from "react";
 import { supabaseClient } from "@/lib/supabase/supabase-client";
+import {
+  Fredoka_300Light,
+  Fredoka_600SemiBold,
+  useFonts,
+} from "@expo-google-fonts/fredoka";
+import { Quicksand_500Medium } from "@expo-google-fonts/quicksand";
 import "../../global.css";
 
 SplashScreen.preventAutoHideAsync();
@@ -23,6 +29,11 @@ export default function RootLayout() {
       setSession: state.setSession,
     })),
   );
+  const [fontsLoaded] = useFonts({
+    Fredoka_600SemiBold,
+    Fredoka_300Light,
+    Quicksand_500Medium,
+  });
 
   useEffect(() => {
     const handleDeepLink = async (url: string) => {
@@ -72,7 +83,10 @@ export default function RootLayout() {
 
   // Router redirection on session change
   useEffect(() => {
-    if (session === undefined) return;
+    // Le Stack doit être monté avant toute navigation
+    if (!fontsLoaded || session === undefined) return;
+    // Les documents légaux restent accessibles connecté ou non
+    if (segments[0] === "legal") return;
     const inAuthGroup = segments[0] === "(auth)";
 
     if (!session && !inAuthGroup) {
@@ -80,13 +94,22 @@ export default function RootLayout() {
     } else if (session && inAuthGroup) {
       router.navigate("/(main)");
     }
-  }, [session, segments]);
+  }, [session, segments, fontsLoaded]);
+
+  // Le splash natif reste affiché tant que les polices ne sont pas chargées
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <SafeAreaProvider>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(main)" />
+        <Stack.Screen
+          name="legal/[slug]"
+          options={{ headerShown: true, headerBackTitle: "Retour" }}
+        />
       </Stack>
       <ThemeProvider
         value={colorScheme === "dark" ? CustomDarkTheme : CustomLightTheme}

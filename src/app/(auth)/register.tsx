@@ -1,58 +1,79 @@
 import {
+  KeyboardAvoidingView,
+  Platform,
   ScrollView,
   StyleSheet,
-  TextInput,
+  Text,
   TouchableOpacity,
   View,
-  Text,
 } from "react-native";
 import { useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { RegisterFormSchema, registerSchema } from "@/schemas/register-schema";
 import {
-  Fredoka_300Light,
-  Fredoka_600SemiBold,
-  useFonts,
-} from "@expo-google-fonts/fredoka";
-import { Quicksand_500Medium } from "@expo-google-fonts/quicksand";
+  PASSWORD_RULES,
+  RegisterFormModel,
+  registerSchema,
+} from "@/schemas/register-schema";
 import { Image } from "expo-image";
-import { supabaseClient } from "@/lib/supabase/supabase-client";
 import * as Linking from "expo-linking";
+import { Link, useRouter } from "expo-router";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
+import { supabaseClient } from "@/lib/supabase/supabase-client";
+import { getAuthErrorMessage } from "@/lib/supabase/auth-errors";
+import { signInWithGoogle } from "@/lib/supabase/google-auth";
+import { useAppTheme } from "@/hooks/use-app-theme";
+import { FormInput } from "@/components/ui/form-input";
+import { FormCheckbox } from "@/components/ui/form-checkbox";
+import { FormAlert } from "@/components/ui/form-alert";
+import { PrimaryButton } from "@/components/ui/primary-button";
+import { LegalLink } from "@/components/ui/legal-link";
+import { getTermsAcceptanceMetadata } from "@/constants/legal.constants";
+
+const FIRST_STEP_FIELDS = ["firstName", "lastName", "phone"] as const;
 
 export default function Register() {
+  const { colors } = useAppTheme();
+  const router = useRouter();
   const [step, setStep] = useState<number>(1);
-  const {
-    control,
-    handleSubmit,
-    formState: { errors, dirtyFields },
-  } = useForm<RegisterFormSchema>({
-    mode: "onChange",
-    resolver: zodResolver(registerSchema),
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      phone: "",
-      email: "",
-      password: "",
-    },
-  });
+  const [loading, setLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const { control, handleSubmit, trigger, setFocus } =
+    useForm<RegisterFormModel>({
+      mode: "onTouched",
+      resolver: zodResolver(registerSchema),
+      defaultValues: {
+        firstName: "",
+        lastName: "",
+        phone: "",
+        email: "",
+        password: "",
+        acceptTerms: false,
+      },
+    });
+  const password = useWatch({ control, name: "password" });
 
-  let [fontsLoaded] = useFonts({
-    Fredoka_600SemiBold,
-    Fredoka_300Light,
-    Quicksand_500Medium,
-  });
-
-  if (!fontsLoaded) {
-    return null;
-  }
-
-  const handleNextStep = () => {
-    setStep(2);
+  const handleNextStep = async () => {
+    const isValid = await trigger(FIRST_STEP_FIELDS, { shouldFocus: true });
+    if (isValid) {
+      setSubmitError(null);
+      setStep(2);
+    }
   };
 
-  const onSubmit = async (formData: RegisterFormSchema) => {
+  const handleGoogleSignUp = async () => {
+    setSubmitError(null);
+    const { error } = await signInWithGoogle();
+    // En cas de succès, le layout racine redirige vers l'app
+    if (error) {
+      setSubmitError(error);
+    }
+  };
+
+  const onSubmit = async (formData: RegisterFormModel) => {
+    setSubmitError(null);
+    setLoading(true);
     const redirectUrl = Linking.createURL("/(main)");
     const { data, error } = await supabaseClient.auth.signUp({
       email: formData.email,
@@ -63,314 +84,351 @@ export default function Register() {
         data: {
           first_name: formData.firstName,
           last_name: formData.lastName,
+          ...getTermsAcceptanceMetadata(),
         },
       },
     });
 
+    setLoading(false);
+
     if (error) {
-      console.error(error);
+      setSubmitError(getAuthErrorMessage(error));
+      return;
+    }
+
+    if (!data.session) {
+      router.replace({
+        pathname: "/check-email",
+        params: { email: formData.email },
+      });
     }
   };
 
-  const isFirstStepValid =
-    dirtyFields.firstName &&
-    dirtyFields.lastName &&
-    !errors.firstName &&
-    !errors.lastName &&
-    !errors.phone;
+  const styles = StyleSheet.create({
+    flex: {
+      flex: 1,
+      backgroundColor: colors.background,
+    },
+    container: {
+      flexGrow: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      padding: 20,
+    },
+    image: {
+      width: "20%",
+      height: 200,
+    },
+    title: {
+      fontFamily: "Fredoka_600SemiBold",
+      fontSize: 26,
+      color: colors.heading,
+      marginTop: 10,
+      marginBottom: 16,
+    },
+    subtitle: {
+      fontFamily: "Fredoka_600SemiBold",
+      fontSize: 20,
+      color: colors.heading,
+      marginBottom: 16,
+    },
+    stepIndicator: {
+      flexDirection: "row",
+      justifyContent: "center",
+      alignItems: "center",
+      marginBottom: 24,
+    },
+    dot: {
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+      backgroundColor: colors.inactive,
+      marginHorizontal: 6,
+    },
+    activeDot: {
+      width: 24,
+      backgroundColor: colors.brandDarker,
+    },
+    formGroup: {
+      width: "100%",
+      marginBottom: 15,
+    },
+    nameContainer: {
+      flexDirection: "row",
+      gap: 10,
+    },
+    googleButton: {
+      width: "100%",
+      height: 48,
+    },
+    googleNotice: {
+      fontFamily: "Quicksand_500Medium",
+      fontSize: 12,
+      color: colors.muted,
+      textAlign: "center",
+      marginTop: 6,
+    },
+    divider: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 10,
+      marginVertical: 18,
+    },
+    dividerLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: colors.border,
+    },
+    dividerText: {
+      fontFamily: "Quicksand_500Medium",
+      color: colors.muted,
+    },
+    rules: {
+      marginTop: -4,
+      marginBottom: 8,
+      marginLeft: 4,
+      gap: 4,
+    },
+    rule: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 6,
+    },
+    ruleText: {
+      fontFamily: "Quicksand_500Medium",
+      fontSize: 12,
+      color: colors.muted,
+    },
+    ruleTextValid: {
+      color: colors.success,
+    },
+    backButton: {
+      alignItems: "center",
+      paddingVertical: 12,
+      marginTop: 4,
+    },
+    backText: {
+      fontFamily: "Quicksand_500Medium",
+      color: colors.muted,
+      fontSize: 14,
+      textDecorationLine: "underline",
+    },
+    loginLink: {
+      fontFamily: "Fredoka_300Light",
+      color: colors.heading,
+      textDecorationLine: "underline",
+      marginTop: 6,
+    },
+  });
 
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      keyboardShouldPersistTaps="handled"
+    <KeyboardAvoidingView
+      style={styles.flex}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
-      <Image
-        source={require("@/assets/images/register.png")}
-        style={styles.image}
-      />
-      <Text style={styles.title}>Créer un compte</Text>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Image
+          source={require("@/assets/images/register.png")}
+          style={styles.image}
+          contentFit="contain"
+          accessible={false}
+        />
+        <Text style={styles.title} accessibilityRole="header">
+          Créer un compte
+        </Text>
 
-      <View style={styles.stepIndicator}>
-        <View style={[styles.dot, step === 1 && styles.activeDot]} />
-        <View style={[styles.dot, step === 2 && styles.activeDot]} />
-      </View>
+        <View
+          style={styles.stepIndicator}
+          accessible
+          accessibilityLabel={`Étape ${step} sur 2`}
+        >
+          <View style={[styles.dot, step === 1 && styles.activeDot]} />
+          <View style={[styles.dot, step === 2 && styles.activeDot]} />
+        </View>
 
-      {step === 1 ? (
-        <View style={styles.formGroup}>
-          <Text style={styles.title}>Faisons connaissance !</Text>
+        {step === 1 ? (
+          <View style={styles.formGroup}>
+            <GoogleSigninButton
+              style={styles.googleButton}
+              size={GoogleSigninButton.Size.Wide}
+              onPress={handleGoogleSignUp}
+              accessibilityLabel="S'inscrire avec Google"
+            />
+            <Text style={styles.googleNotice}>
+              En continuant avec Google, vous acceptez nos{" "}
+              <LegalLink slug="cgu">CGU</LegalLink> et reconnaissez avoir pris
+              connaissance de notre{" "}
+              <LegalLink slug="confidentialite">
+                politique de confidentialité
+              </LegalLink>
+              .
+            </Text>
 
-          <View style={styles.nameContainer}>
-            <View className={"flex-1"}>
-              <Controller
-                control={control}
-                name="lastName"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <View style={styles.inputContainer}>
-                    <Image
-                      source={require("@/assets/icons/name.png")}
-                      style={styles.inputIcon}
-                    />
-                    <TextInput
-                      placeholder="Ex: Doe"
-                      style={styles.input}
-                      placeholderTextColor="#888"
-                      value={value}
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      autoCapitalize="none"
-                      underlineColorAndroid="transparent"
-                    />
-                  </View>
-                )}
-              />
-              {errors.lastName && (
-                <Text style={styles.error}>{errors.lastName.message}</Text>
-              )}
+            <View style={styles.divider} importantForAccessibility="no">
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>ou</Text>
+              <View style={styles.dividerLine} />
             </View>
-            <View className={"flex-1"}>
-              <Controller
+
+            <Text style={styles.subtitle} accessibilityRole="header">
+              Faisons connaissance !
+            </Text>
+
+            <View style={styles.nameContainer}>
+              <FormInput
                 control={control}
                 name="firstName"
-                render={({ field: { onChange, onBlur, value } }) => (
-                  <View style={styles.inputContainer}>
-                    <Image
-                      source={require("@/assets/icons/first_name.png")}
-                      style={styles.inputIcon}
-                    />
-                    <TextInput
-                      placeholder="Ex: John"
-                      style={styles.input}
-                      placeholderTextColor="#888"
-                      value={value}
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      autoCapitalize="none"
-                      underlineColorAndroid="transparent"
-                    />
-                  </View>
-                )}
+                label="Prénom"
+                icon={require("@/assets/icons/first_name.png")}
+                placeholder="Ex : Jean"
+                style={{ flex: 1 }}
+                autoCapitalize="words"
+                autoComplete="given-name"
+                textContentType="givenName"
+                returnKeyType="next"
+                submitBehavior="submit"
+                onSubmitEditing={() => setFocus("lastName")}
               />
-              {errors.firstName && (
-                <Text style={styles.error}>{errors.firstName.message}</Text>
-              )}
+              <FormInput
+                control={control}
+                name="lastName"
+                label="Nom"
+                icon={require("@/assets/icons/name.png")}
+                placeholder="Ex : Dupont"
+                style={{ flex: 1 }}
+                autoCapitalize="words"
+                autoComplete="family-name"
+                textContentType="familyName"
+                returnKeyType="next"
+                submitBehavior="submit"
+                onSubmitEditing={() => setFocus("phone")}
+              />
             </View>
+
+            <FormInput
+              control={control}
+              name="phone"
+              label="Téléphone (facultatif)"
+              icon={require("@/assets/icons/phone.png")}
+              placeholder="Ex : 06 45 21 65 32"
+              inputMode="tel"
+              autoComplete="tel"
+              textContentType="telephoneNumber"
+              returnKeyType="done"
+              onSubmitEditing={handleNextStep}
+            />
+
+            {submitError && <FormAlert message={submitError} />}
+
+            <PrimaryButton label="Continuer" onPress={handleNextStep} />
           </View>
+        ) : (
+          <View style={styles.formGroup}>
+            <Text style={styles.subtitle} accessibilityRole="header">
+              Vos identifiants
+            </Text>
 
-          <Controller
-            control={control}
-            name="phone"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <View style={styles.inputContainer}>
-                <Image
-                  source={require("@/assets/icons/phone.png")}
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  placeholder="Ex: +33645216532"
-                  style={styles.input}
-                  placeholderTextColor="#888"
-                  value={value}
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  autoCapitalize="none"
-                  underlineColorAndroid="transparent"
-                  inputMode={"tel"}
-                />
-              </View>
-            )}
-          />
-          {errors.phone && (
-            <Text style={styles.error}>{errors.phone.message}</Text>
-          )}
-          <TouchableOpacity
-            style={[styles.button, !isFirstStepValid && styles.buttonDisabled]}
-            onPress={handleNextStep}
-            disabled={!isFirstStepValid}
-          >
-            <Text style={styles.buttonText}>Continuer</Text>
-          </TouchableOpacity>
-        </View>
-      ) : (
-        <View style={styles.formGroup}>
-          <Text style={styles.title}>Vos identifiants</Text>
+            <FormInput
+              control={control}
+              name="email"
+              label="Email"
+              icon={require("@/assets/icons/box.png")}
+              placeholder="Ex : jean.dupont@mail.com"
+              autoCapitalize="none"
+              autoCorrect={false}
+              inputMode="email"
+              keyboardType="email-address"
+              autoComplete="email"
+              textContentType="emailAddress"
+              returnKeyType="next"
+              submitBehavior="submit"
+              onSubmitEditing={() => setFocus("password")}
+            />
 
-          <Controller
-            control={control}
-            name="email"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <View style={styles.inputContainer} className={"mb-2.5"}>
-                <Image
-                  source={require("@/assets/icons/box.png")}
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  placeholder="Email"
-                  style={styles.input}
-                  placeholderTextColor="#888"
-                  value={value}
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  autoCapitalize="none"
-                  keyboardType="email-address"
-                  underlineColorAndroid="transparent"
-                  inputMode={"email"}
-                />
-              </View>
-            )}
-          />
-          {errors.email && (
-            <Text style={styles.error}>{errors.email.message}</Text>
-          )}
-          <Controller
-            control={control}
-            name="password"
-            render={({ field: { onChange, onBlur, value } }) => (
-              <View style={styles.inputContainer} className={"w-full"}>
-                <Image
-                  source={require("@/assets/icons/lock.png")}
-                  style={styles.inputIcon}
-                />
-                <TextInput
-                  placeholder="Mot de passe"
-                  secureTextEntry
-                  style={styles.input}
-                  placeholderTextColor="#888"
-                  value={value}
-                  onBlur={onBlur}
-                  onChangeText={onChange}
-                  underlineColorAndroid="transparent"
-                />
-              </View>
-            )}
-          />
-          {errors.password && (
-            <Text style={styles.error}>{errors.password.message}</Text>
-          )}
+            <FormInput
+              control={control}
+              name="password"
+              label="Mot de passe"
+              icon={require("@/assets/icons/lock.png")}
+              placeholder="Votre mot de passe"
+              secureTextEntry
+              autoCapitalize="none"
+              autoCorrect={false}
+              autoComplete="new-password"
+              textContentType="newPassword"
+              passwordRules="minlength: 8; required: upper; required: lower; required: digit;"
+              returnKeyType="done"
+            />
 
-          <TouchableOpacity
-            style={[
-              styles.button,
-              Object.values(errors).length > 0 && styles.buttonDisabled,
-            ]}
-            onPress={handleSubmit(onSubmit)}
-            disabled={Object.values(errors).length > 0}
-          >
-            <Text style={styles.buttonText}>Créer mon compte</Text>
-          </TouchableOpacity>
+            <View
+              style={styles.rules}
+              accessible
+              accessibilityLabel={`Règles du mot de passe : ${PASSWORD_RULES.map(
+                (rule) =>
+                  `${rule.label} ${rule.test(password) ? "respectée" : "non respectée"}`,
+              ).join(", ")}`}
+            >
+              {PASSWORD_RULES.map((rule) => {
+                const valid = rule.test(password);
+                return (
+                  <View key={rule.label} style={styles.rule}>
+                    <Ionicons
+                      name={valid ? "checkmark-circle" : "ellipse-outline"}
+                      size={14}
+                      color={valid ? colors.success : colors.muted}
+                    />
+                    <Text
+                      style={[styles.ruleText, valid && styles.ruleTextValid]}
+                    >
+                      {rule.label}
+                    </Text>
+                  </View>
+                );
+              })}
+            </View>
 
-          <TouchableOpacity
-            onPress={() => setStep(1)}
-            style={styles.backButton}
-          >
-            <Text style={styles.backText}>← Modifier mes informations</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </ScrollView>
+            <FormCheckbox
+              control={control}
+              name="acceptTerms"
+              accessibilityLabel="J'accepte les conditions générales d'utilisation et j'ai pris connaissance de la politique de confidentialité"
+            >
+              J’accepte les{" "}
+              <LegalLink slug="cgu">
+                conditions générales d’utilisation
+              </LegalLink>{" "}
+              et j’ai pris connaissance de la{" "}
+              <LegalLink slug="confidentialite">
+                politique de confidentialité
+              </LegalLink>
+              .
+            </FormCheckbox>
+
+            {submitError && <FormAlert message={submitError} />}
+
+            <PrimaryButton
+              label="Créer mon compte"
+              onPress={handleSubmit(onSubmit)}
+              loading={loading}
+            />
+
+            <TouchableOpacity
+              onPress={() => setStep(1)}
+              style={styles.backButton}
+              accessibilityRole="button"
+              accessibilityLabel="Revenir à l'étape précédente pour modifier mes informations"
+            >
+              <Text style={styles.backText}>← Modifier mes informations</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
+        <Link style={styles.loginLink} href="/login" replace>
+          Déjà un compte ? Se connecter
+        </Link>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#FDFBF7",
-    padding: 20,
-  },
-  title: {
-    fontFamily: "Fredoka_600SemiBold",
-    fontSize: 26,
-    color: "#4A3525",
-    marginBottom: 30,
-    fontWeight: "bold",
-  },
-  stepIndicator: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginBottom: 24,
-  },
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: "#E5D6C5",
-    marginHorizontal: 6,
-  },
-  activeDot: {
-    width: 24,
-    backgroundColor: "#C86D51",
-  },
-  formGroup: {
-    width: "100%",
-    marginBottom: 15,
-  },
-  nameContainer: {
-    display: "flex",
-    flexDirection: "row",
-    gap: 10,
-    marginBottom: 10,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    backgroundColor: "#F5EFEB",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#D4C5B9",
-    height: 40,
-    paddingHorizontal: 5,
-  },
-  inputIcon: {
-    padding: 10,
-    margin: 5,
-    height: 25,
-    width: 25,
-    resizeMode: "stretch",
-    alignItems: "center",
-  },
-  input: {
-    fontFamily: "Quicksand_500Medium",
-    flex: 1,
-    padding: 10,
-  },
-  button: {
-    backgroundColor: "#D97D65",
-    width: "100%",
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 10,
-    marginTop: 10,
-    alignItems: "center",
-  },
-  buttonText: {
-    fontFamily: "Fredoka_600SemiBold",
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  buttonDisabled: {
-    opacity: 0.5,
-  },
-  backButton: {
-    alignItems: "center",
-    paddingVertical: 12,
-    marginTop: 4,
-  },
-  backText: {
-    color: "#8C6D62",
-    fontSize: 14,
-    textDecorationLine: "underline",
-  },
-  error: {
-    color: "#D97D65",
-    fontSize: 12,
-    alignSelf: "flex-start",
-    marginBottom: 10,
-    marginLeft: 5,
-  },
-  image: {
-    width: "20%",
-    height: "35%",
-  },
-});

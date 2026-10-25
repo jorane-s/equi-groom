@@ -1,247 +1,145 @@
-import {
-  ActivityIndicator,
-  TouchableOpacity,
-  View,
-  StyleSheet,
-  TextInput,
-  Text,
-} from "react-native";
-import {
-  useFonts,
-  Fredoka_600SemiBold,
-  Fredoka_300Light,
-} from "@expo-google-fonts/fredoka";
-import { Quicksand_500Medium } from "@expo-google-fonts/quicksand";
-import { useForm, Controller } from "react-hook-form";
+import { StyleSheet, Text, View } from "react-native";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { LoginFormModel, loginSchema } from "@/schemas/login-schema";
 import { supabaseClient } from "@/lib/supabase/supabase-client";
-import {
-  GoogleSignin,
-  GoogleSigninButton,
-  isSuccessResponse,
-  statusCodes,
-} from "@react-native-google-signin/google-signin";
+import { getAuthErrorMessage } from "@/lib/supabase/auth-errors";
+import { signInWithGoogle } from "@/lib/supabase/google-auth";
+import { GoogleSigninButton } from "@react-native-google-signin/google-signin";
 import CurvedBottomImage from "@/components/ui/curved-bottom-image";
+import { FormInput } from "@/components/ui/form-input";
+import { FormAlert } from "@/components/ui/form-alert";
+import { PrimaryButton } from "@/components/ui/primary-button";
+import { LegalLink } from "@/components/ui/legal-link";
+import { useAppTheme } from "@/hooks/use-app-theme";
 import { Link } from "expo-router";
-import { Image } from "expo-image";
 
 export default function Login() {
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
-    });
-  }, []);
+  const { colors } = useAppTheme();
   const [loading, setLoading] = useState(false);
-  const {
-    control,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormModel>({
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const { control, handleSubmit, setFocus } = useForm<LoginFormModel>({
     mode: "onBlur",
     resolver: zodResolver(loginSchema),
     defaultValues: { email: "", password: "" },
   });
 
-  let [fontsLoaded] = useFonts({
-    Fredoka_600SemiBold,
-    Fredoka_300Light,
-    Quicksand_500Medium,
-  });
-
-  if (!fontsLoaded) {
-    return null;
-  }
-
   const handleGoogleLogin = async () => {
-    try {
-      await GoogleSignin.hasPlayServices();
-      const response = await GoogleSignin.signIn();
-
-      if (isSuccessResponse(response) && response.data?.idToken) {
-        const { data, error } = await supabaseClient.auth.signInWithIdToken({
-          provider: "google",
-          token: response.data.idToken,
-        });
-        if (error) {
-          console.error(error);
-        }
-      } else {
-      }
-    } catch (error: any) {
-      if (error.code === statusCodes.IN_PROGRESS) {
-        return;
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-      } else {
-      }
+    setSubmitError(null);
+    const { error } = await signInWithGoogle();
+    if (error) {
+      setSubmitError(error);
     }
   };
 
   const onSubmit = async (data: LoginFormModel) => {
+    setSubmitError(null);
     setLoading(true);
     const { error } = await supabaseClient.auth.signInWithPassword({
-      email: data.email.trim(),
+      email: data.email,
       password: data.password,
     });
     setLoading(false);
 
     if (error) {
-      //Alert.alert("Échec de la connexion", error.message);
+      setSubmitError(getAuthErrorMessage(error));
     }
   };
+
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: "center",
+      alignItems: "center",
+      backgroundColor: colors.background,
+      padding: 20,
+    },
+    title: {
+      fontFamily: "Fredoka_600SemiBold",
+      fontSize: 26,
+      color: colors.heading,
+      marginBottom: 30,
+    },
+    googleNotice: {
+      fontFamily: "Quicksand_500Medium",
+      fontSize: 12,
+      color: colors.muted,
+      textAlign: "center",
+      marginTop: 6,
+    },
+    link: {
+      textDecorationLine: "underline",
+      fontFamily: "Fredoka_300Light",
+      color: colors.heading,
+      marginTop: 10,
+    },
+  });
 
   return (
     <View style={styles.container}>
       <CurvedBottomImage
         imageSrc={require("@/assets/images/login.png")}
       ></CurvedBottomImage>
-      <Text style={styles.title}>Bienvenue dans Equigroom</Text>
-      <Controller
+      <Text style={styles.title} accessibilityRole="header">
+        Bienvenue dans Equigroom
+      </Text>
+      <FormInput
         control={control}
         name="email"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <View style={styles.inputContainer}>
-            <Image
-              source={require("@/assets/icons/box.png")}
-              style={styles.inputIcon}
-            />
-            <TextInput
-              placeholder="Email"
-              style={styles.input}
-              placeholderTextColor="#888"
-              value={value}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              autoCapitalize="none"
-              keyboardType="email-address"
-              underlineColorAndroid="transparent"
-              inputMode={"email"}
-            />
-          </View>
-        )}
+        label="Email"
+        icon={require("@/assets/icons/box.png")}
+        placeholder="Ex : jean.dupont@mail.com"
+        autoCapitalize="none"
+        autoCorrect={false}
+        inputMode="email"
+        keyboardType="email-address"
+        autoComplete="email"
+        textContentType="username"
+        returnKeyType="next"
+        submitBehavior="submit"
+        onSubmitEditing={() => setFocus("password")}
       />
-      {errors.email && <Text style={styles.error}>{errors.email.message}</Text>}
-      <Controller
+      <FormInput
         control={control}
         name="password"
-        render={({ field: { onChange, onBlur, value } }) => (
-          <View style={styles.inputContainer}>
-            <Image
-              source={require("@/assets/icons/lock.png")}
-              style={styles.inputIcon}
-            />
-            <TextInput
-              placeholder="Mot de passe"
-              secureTextEntry
-              style={styles.input}
-              placeholderTextColor="#888"
-              value={value}
-              onBlur={onBlur}
-              onChangeText={onChange}
-              underlineColorAndroid="transparent"
-            />
-          </View>
-        )}
+        label="Mot de passe"
+        icon={require("@/assets/icons/lock.png")}
+        placeholder="Votre mot de passe"
+        secureTextEntry
+        autoCapitalize="none"
+        autoCorrect={false}
+        autoComplete="current-password"
+        textContentType="password"
+        returnKeyType="go"
+        onSubmitEditing={handleSubmit(onSubmit)}
       />
-      {errors.password && (
-        <Text style={styles.error}>{errors.password.message}</Text>
-      )}
-      <TouchableOpacity
-        style={styles.button}
+      {submitError && <FormAlert message={submitError} />}
+      <PrimaryButton
+        label="Se connecter"
         onPress={handleSubmit(onSubmit)}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="#FFFFFF" />
-        ) : (
-          <Text style={styles.buttonText}>Se connecter</Text>
-        )}
-      </TouchableOpacity>
+        loading={loading}
+      />
       <GoogleSigninButton
         size={GoogleSigninButton.Size.Wide}
         onPress={handleGoogleLogin}
+        accessibilityLabel="Se connecter avec Google"
       ></GoogleSigninButton>
+      <Text style={styles.googleNotice}>
+        En continuant avec Google, vous acceptez nos{" "}
+        <LegalLink slug="cgu">CGU</LegalLink> et reconnaissez avoir pris
+        connaissance de notre{" "}
+        <LegalLink slug="confidentialite">
+          politique de confidentialité
+        </LegalLink>
+        .
+      </Text>
       <Link style={styles.link} href="/register">
         Mot de passe oublié ?
       </Link>
       <Link style={styles.link} href="/register">
-        Pas encore de compte ? S'inscrire
+        Pas encore de compte ? S’inscrire
       </Link>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#FDFBF7",
-    padding: 20,
-  },
-  title: {
-    fontFamily: "Fredoka_600SemiBold",
-    fontSize: 26,
-    color: "#4A3525",
-    marginBottom: 30,
-    fontWeight: "bold",
-  },
-  link: {
-    textDecorationLine: "underline",
-    fontFamily: "Fredoka_300Light",
-    marginTop: 10,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#F5EFEB",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#D4C5B9",
-    height: 40,
-    paddingHorizontal: 5,
-    width: "100%",
-    marginBottom: 15,
-  },
-  inputIcon: {
-    padding: 10,
-    margin: 5,
-    height: 25,
-    width: 25,
-    resizeMode: "stretch",
-    alignItems: "center",
-  },
-  input: {
-    fontFamily: "Quicksand_500Medium",
-    width: "100%",
-    flex: 1,
-    padding: 10,
-  },
-  button: {
-    backgroundColor: "#D97D65",
-    width: "100%",
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 10,
-    alignItems: "center",
-  },
-  buttonText: {
-    fontFamily: "Fredoka_600SemiBold",
-    color: "#FFFFFF",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  error: {
-    color: "#D97D65",
-    fontSize: 12,
-    alignSelf: "flex-start",
-    marginBottom: 10,
-    marginLeft: 5,
-  },
-  image: {
-    width: "25%",
-    height: "40%",
-  },
-});

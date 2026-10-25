@@ -11,7 +11,7 @@ import Animated, {
 } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Profil from "../../../assets/icons/profil.svg";
-import { useAppTheme } from "../../hooks/use-app-theme";
+import { useAppTheme } from "@/hooks/use-app-theme";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const TABS_COUNT = 4;
