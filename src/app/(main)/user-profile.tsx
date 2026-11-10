@@ -3,7 +3,6 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
 } from "react-native";
 import { useState } from "react";
@@ -15,6 +14,7 @@ import { useAppTheme } from "@/hooks/use-app-theme";
 import { deleteUserById } from "@/lib/supabase/profiles";
 import { FormAlert } from "@/components/ui/form-alert";
 import { PrimaryButton } from "@/components/ui/primary-button";
+import { AppText } from "@/components/ui/app-text";
 import { LEGAL_DOCUMENTS, LegalSlug } from "@/constants/legal.constants";
 
 const DELETE_TITLE = "Supprimer mon compte";
@@ -40,7 +40,7 @@ function confirmDeletion(): Promise<boolean> {
   );
 }
 
-export default function Profil() {
+export default function UserProfile() {
   const { colors } = useAppTheme();
   const { user, profile, signOut, setSession } = useAuthStore(
     useShallow((state) => ({
@@ -76,21 +76,10 @@ export default function Profil() {
       padding: 20,
       paddingBottom: 40,
     },
-    name: {
-      fontFamily: "Fredoka_600SemiBold",
-      fontSize: 22,
-      color: colors.heading,
-    },
     email: {
-      fontFamily: "Quicksand_500Medium",
-      fontSize: 14,
-      color: colors.muted,
       marginBottom: 24,
     },
     sectionTitle: {
-      fontFamily: "Fredoka_600SemiBold",
-      fontSize: 16,
-      color: colors.heading,
       marginTop: 16,
       marginBottom: 8,
     },
@@ -102,35 +91,33 @@ export default function Profil() {
       borderBottomWidth: 1,
       borderBottomColor: colors.inactive,
     },
-    rowText: {
-      fontFamily: "Quicksand_500Medium",
-      fontSize: 15,
-      color: colors.heading,
-    },
     deleteButton: {
       alignItems: "center",
       paddingVertical: 14,
       marginTop: 8,
-    },
-    deleteText: {
-      fontFamily: "Fredoka_600SemiBold",
-      fontSize: 15,
-      color: colors.error,
     },
   });
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {(firstName || lastName) && (
-        <Text style={styles.name} accessibilityRole="header">
+        <AppText variant="h2" accessibilityRole="header">
           {[firstName, lastName].filter(Boolean).join(" ")}
-        </Text>
+        </AppText>
       )}
-      {user?.email && <Text style={styles.email}>{user.email}</Text>}
+      {user?.email && (
+        <AppText color="muted" style={styles.email}>
+          {user.email}
+        </AppText>
+      )}
 
-      <Text style={styles.sectionTitle} accessibilityRole="header">
+      <AppText
+        variant="h3"
+        style={styles.sectionTitle}
+        accessibilityRole="header"
+      >
         Informations légales
-      </Text>
+      </AppText>
       {(Object.keys(LEGAL_DOCUMENTS) as LegalSlug[]).map((slug) => (
         <Link
           key={slug}
@@ -138,15 +125,19 @@ export default function Profil() {
           asChild
         >
           <TouchableOpacity style={styles.row} accessibilityRole="link">
-            <Text style={styles.rowText}>{LEGAL_DOCUMENTS[slug].title}</Text>
+            <AppText>{LEGAL_DOCUMENTS[slug].title}</AppText>
             <Ionicons name="chevron-forward" size={18} color={colors.muted} />
           </TouchableOpacity>
         </Link>
       ))}
 
-      <Text style={styles.sectionTitle} accessibilityRole="header">
+      <AppText
+        variant="h3"
+        style={styles.sectionTitle}
+        accessibilityRole="header"
+      >
         Compte
-      </Text>
+      </AppText>
       <PrimaryButton label="Se déconnecter" onPress={signOut} />
 
       {error && <FormAlert message={error} />}
@@ -160,9 +151,9 @@ export default function Profil() {
         accessibilityHint="Supprime définitivement votre compte et vos données"
         accessibilityState={{ disabled: deleting, busy: deleting }}
       >
-        <Text style={styles.deleteText}>
+        <AppText variant="button" color="error">
           {deleting ? "Suppression en cours…" : DELETE_TITLE}
-        </Text>
+        </AppText>
       </TouchableOpacity>
     </ScrollView>
   );

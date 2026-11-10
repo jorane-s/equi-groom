@@ -20,6 +20,7 @@
     --heading-color-default: #4a3525;
     --brand-color-default: #d97d65;
     --brand-color-darker: #c86d51;
+    --on-brand-color-default: #ffffff;
     --muted-color-default: #8c6d62;
     --inactive-color-default: #e5d6c5;
     --error-color-default: #b4533a;
@@ -45,6 +46,7 @@
     --heading-color-default: #4a3525;
     --brand-color-default: #d97d65;
     --brand-color-darker: #c86d51;
+    --on-brand-color-default: #ffffff;
     --muted-color-default: #8c6d62;
     --inactive-color-default: #e5d6c5;
     --error-color-default: #b4533a;

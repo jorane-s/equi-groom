@@ -15,6 +15,7 @@ import {
   useFonts,
 } from "@expo-google-fonts/fredoka";
 import { Quicksand_500Medium } from "@expo-google-fonts/quicksand";
+import { FONTS } from "@/constants/typography";
 import "../../global.css";
 
 SplashScreen.preventAutoHideAsync();
@@ -103,7 +104,13 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <Stack screenOptions={{ headerShown: false }}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          headerTitleStyle: { fontFamily: FONTS.title },
+          headerBackTitleStyle: { fontFamily: FONTS.body },
+        }}
+      >
         <Stack.Screen name="(auth)" />
         <Stack.Screen name="(main)" />
         <Stack.Screen

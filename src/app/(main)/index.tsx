@@ -1,10 +1,10 @@
-import { Text } from "@expo/ui";
 import { View } from "react-native";
+import { AppText } from "@/components/ui/app-text";
 
 export default function Index() {
   return (
     <View>
-      <Text textStyle={{ color: "black", fontSize: 20 }}>A venir</Text>
+      <AppText variant="h2">À venir</AppText>
     </View>
   );
 }

@@ -3,7 +3,6 @@ import {
   Platform,
   ScrollView,
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -29,6 +28,8 @@ import { FormCheckbox } from "@/components/ui/form-checkbox";
 import { FormAlert } from "@/components/ui/form-alert";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { LegalLink } from "@/components/ui/legal-link";
+import { AppText } from "@/components/ui/app-text";
+import { TEXT_VARIANTS } from "@/constants/typography";
 import { getTermsAcceptanceMetadata } from "@/constants/legal.constants";
 
 const FIRST_STEP_FIELDS = ["firstName", "lastName", "phone"] as const;
@@ -120,16 +121,10 @@ export default function Register() {
       height: 200,
     },
     title: {
-      fontFamily: "Fredoka_600SemiBold",
-      fontSize: 26,
-      color: colors.heading,
       marginTop: 10,
       marginBottom: 16,
     },
     subtitle: {
-      fontFamily: "Fredoka_600SemiBold",
-      fontSize: 20,
-      color: colors.heading,
       marginBottom: 16,
     },
     stepIndicator: {
@@ -162,9 +157,6 @@ export default function Register() {
       height: 48,
     },
     googleNotice: {
-      fontFamily: "Quicksand_500Medium",
-      fontSize: 12,
-      color: colors.muted,
       textAlign: "center",
       marginTop: 6,
     },
@@ -179,10 +171,6 @@ export default function Register() {
       height: 1,
       backgroundColor: colors.border,
     },
-    dividerText: {
-      fontFamily: "Quicksand_500Medium",
-      color: colors.muted,
-    },
     rules: {
       marginTop: -4,
       marginBottom: 8,
@@ -194,27 +182,16 @@ export default function Register() {
       alignItems: "center",
       gap: 6,
     },
-    ruleText: {
-      fontFamily: "Quicksand_500Medium",
-      fontSize: 12,
-      color: colors.muted,
-    },
-    ruleTextValid: {
-      color: colors.success,
-    },
     backButton: {
       alignItems: "center",
       paddingVertical: 12,
       marginTop: 4,
     },
     backText: {
-      fontFamily: "Quicksand_500Medium",
-      color: colors.muted,
-      fontSize: 14,
       textDecorationLine: "underline",
     },
     loginLink: {
-      fontFamily: "Fredoka_300Light",
+      ...TEXT_VARIANTS.link,
       color: colors.heading,
       textDecorationLine: "underline",
       marginTop: 6,
@@ -236,9 +213,9 @@ export default function Register() {
           contentFit="contain"
           accessible={false}
         />
-        <Text style={styles.title} accessibilityRole="header">
+        <AppText variant="h1" style={styles.title} accessibilityRole="header">
           Créer un compte
-        </Text>
+        </AppText>
 
         <View
           style={styles.stepIndicator}
@@ -257,7 +234,11 @@ export default function Register() {
               onPress={handleGoogleSignUp}
               accessibilityLabel="S'inscrire avec Google"
             />
-            <Text style={styles.googleNotice}>
+            <AppText
+              variant="caption"
+              color="muted"
+              style={styles.googleNotice}
+            >
               En continuant avec Google, vous acceptez nos{" "}
               <LegalLink slug="cgu">CGU</LegalLink> et reconnaissez avoir pris
               connaissance de notre{" "}
@@ -265,17 +246,21 @@ export default function Register() {
                 politique de confidentialité
               </LegalLink>
               .
-            </Text>
+            </AppText>
 
             <View style={styles.divider} importantForAccessibility="no">
               <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>ou</Text>
+              <AppText color="muted">ou</AppText>
               <View style={styles.dividerLine} />
             </View>
 
-            <Text style={styles.subtitle} accessibilityRole="header">
+            <AppText
+              variant="h2"
+              style={styles.subtitle}
+              accessibilityRole="header"
+            >
               Faisons connaissance !
-            </Text>
+            </AppText>
 
             <View style={styles.nameContainer}>
               <FormInput
@@ -327,9 +312,13 @@ export default function Register() {
           </View>
         ) : (
           <View style={styles.formGroup}>
-            <Text style={styles.subtitle} accessibilityRole="header">
+            <AppText
+              variant="h2"
+              style={styles.subtitle}
+              accessibilityRole="header"
+            >
               Vos identifiants
-            </Text>
+            </AppText>
 
             <FormInput
               control={control}
@@ -380,11 +369,12 @@ export default function Register() {
                       size={14}
                       color={valid ? colors.success : colors.muted}
                     />
-                    <Text
-                      style={[styles.ruleText, valid && styles.ruleTextValid]}
+                    <AppText
+                      variant="caption"
+                      color={valid ? "success" : "muted"}
                     >
                       {rule.label}
-                    </Text>
+                    </AppText>
                   </View>
                 );
               })}
@@ -420,7 +410,9 @@ export default function Register() {
               accessibilityRole="button"
               accessibilityLabel="Revenir à l'étape précédente pour modifier mes informations"
             >
-              <Text style={styles.backText}>← Modifier mes informations</Text>
+              <AppText variant="small" color="muted" style={styles.backText}>
+                ← Modifier mes informations
+              </AppText>
             </TouchableOpacity>
           </View>
         )}

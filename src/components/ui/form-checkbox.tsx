@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { ReactNode } from "react";
 import {
   Control,
@@ -8,6 +8,7 @@ import {
 } from "react-hook-form";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { AppText } from "@/components/ui/app-text";
 
 type FormCheckboxProps<T extends FieldValues> = {
   control: Control<T>;
@@ -42,15 +43,8 @@ export function FormCheckbox<T extends FieldValues>({
     },
     label: {
       flex: 1,
-      fontFamily: "Quicksand_500Medium",
-      fontSize: 13,
-      lineHeight: 19,
-      color: colors.muted,
     },
     error: {
-      fontFamily: "Quicksand_500Medium",
-      color: colors.error,
-      fontSize: 12,
       marginTop: 4,
       marginLeft: 34,
     },
@@ -72,18 +66,25 @@ export function FormCheckbox<T extends FieldValues>({
             color={error ? colors.error : checked ? colors.brand : colors.muted}
           />
         </Pressable>
-        <Text style={styles.label} onPress={toggle}>
+        <AppText
+          variant="small"
+          color="muted"
+          style={styles.label}
+          onPress={toggle}
+        >
           {children}
-        </Text>
+        </AppText>
       </View>
       {error?.message && (
-        <Text
+        <AppText
+          variant="caption"
+          color="error"
           style={styles.error}
           accessibilityRole="alert"
           accessibilityLiveRegion="polite"
         >
           {error.message}
-        </Text>
+        </AppText>
       )}
     </View>
   );

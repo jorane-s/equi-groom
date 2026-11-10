@@ -2,11 +2,11 @@ import {
   ActivityIndicator,
   StyleProp,
   StyleSheet,
-  Text,
   TouchableOpacity,
   ViewStyle,
 } from "react-native";
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { AppText } from "@/components/ui/app-text";
 
 type PrimaryButtonProps = {
   label: string;
@@ -40,11 +40,6 @@ export function PrimaryButton({
     disabled: {
       opacity: 0.5,
     },
-    text: {
-      fontFamily: "Fredoka_600SemiBold",
-      color: "#FFFFFF",
-      fontSize: 16,
-    },
   });
 
   return (
@@ -57,9 +52,11 @@ export function PrimaryButton({
       accessibilityState={{ disabled: isDisabled, busy: loading }}
     >
       {loading ? (
-        <ActivityIndicator color="#FFFFFF" />
+        <ActivityIndicator color={colors.onBrand} />
       ) : (
-        <Text style={styles.text}>{label}</Text>
+        <AppText variant="button" color="onBrand">
+          {label}
+        </AppText>
       )}
     </TouchableOpacity>
   );

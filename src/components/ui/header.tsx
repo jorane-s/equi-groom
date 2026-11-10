@@ -9,15 +9,17 @@ export default function Header() {
   const styles = StyleSheet.create({
     header: {
       backgroundColor: colors.secondary,
+      flexDirection: "row-reverse",
       height: "25%",
       zIndex: 1,
     },
+    imageContainer: {
+      flex: 1,
+      alignItems: "center",
+    },
     image: {
-      width: "100%",
-      height: "75%",
-      position: "absolute",
-      top: 15,
-      resizeMode: "contain",
+      width: "25%",
+      height: 200,
     },
     userButton: {
       alignSelf: "flex-end",
@@ -37,7 +39,9 @@ export default function Header() {
         <FontAwesome name="user" size={20} color="black" />
       </TouchableHighlight>
       {TABS_IMG[currentTab.id] && (
-        <Image style={styles.image} source={TABS_IMG[currentTab.id]} />
+        <View style={styles.imageContainer}>
+          <Image style={styles.image} source={TABS_IMG[currentTab.id]} />
+        </View>
       )}
     </View>
   );

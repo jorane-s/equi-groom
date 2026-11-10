@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -12,6 +12,8 @@ import { FormInput } from "@/components/ui/form-input";
 import { FormAlert } from "@/components/ui/form-alert";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { LegalLink } from "@/components/ui/legal-link";
+import { AppText } from "@/components/ui/app-text";
+import { TEXT_VARIANTS } from "@/constants/typography";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { Link } from "expo-router";
 
@@ -56,21 +58,15 @@ export default function Login() {
       padding: 20,
     },
     title: {
-      fontFamily: "Fredoka_600SemiBold",
-      fontSize: 26,
-      color: colors.heading,
       marginBottom: 30,
     },
     googleNotice: {
-      fontFamily: "Quicksand_500Medium",
-      fontSize: 12,
-      color: colors.muted,
       textAlign: "center",
       marginTop: 6,
     },
     link: {
+      ...TEXT_VARIANTS.link,
       textDecorationLine: "underline",
-      fontFamily: "Fredoka_300Light",
       color: colors.heading,
       marginTop: 10,
     },
@@ -81,9 +77,9 @@ export default function Login() {
       <CurvedBottomImage
         imageSrc={require("@/assets/images/login.png")}
       ></CurvedBottomImage>
-      <Text style={styles.title} accessibilityRole="header">
+      <AppText variant="h1" style={styles.title} accessibilityRole="header">
         Bienvenue dans Equigroom
-      </Text>
+      </AppText>
       <FormInput
         control={control}
         name="email"
@@ -125,7 +121,7 @@ export default function Login() {
         onPress={handleGoogleLogin}
         accessibilityLabel="Se connecter avec Google"
       ></GoogleSigninButton>
-      <Text style={styles.googleNotice}>
+      <AppText variant="caption" color="muted" style={styles.googleNotice}>
         En continuant avec Google, vous acceptez nos{" "}
         <LegalLink slug="cgu">CGU</LegalLink> et reconnaissez avoir pris
         connaissance de notre{" "}
@@ -133,7 +129,7 @@ export default function Login() {
           politique de confidentialité
         </LegalLink>
         .
-      </Text>
+      </AppText>
       <Link style={styles.link} href="/register">
         Mot de passe oublié ?
       </Link>

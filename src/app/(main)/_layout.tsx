@@ -3,7 +3,7 @@ import Header from "@/components/ui/header";
 import { TABS } from "@/constants/tabs.constants";
 import { TabList, Tabs, TabSlot, TabTrigger } from "expo-router/ui";
 import { useState } from "react";
-import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Pressable, StyleSheet, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -12,6 +12,7 @@ import Animated, {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Profil from "../../../assets/icons/profil.svg";
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { AppText } from "@/components/ui/app-text";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 const TABS_COUNT = 4;
@@ -130,8 +131,6 @@ export default function MainLayout() {
     },
     tabLabel: {
       fontSize: 11,
-      fontWeight: "500",
-      color: "#1E293B",
       marginTop: 2,
     },
   });
@@ -190,17 +189,13 @@ export default function MainLayout() {
                       />
                     )}
                   </View>
-                  <Text
-                    style={[
-                      styles.tabLabel,
-                      {
-                        color:
-                          currentTab === tab.id ? colors.primary : colors.text,
-                      },
-                    ]}
+                  <AppText
+                    variant="caption"
+                    color={currentTab === tab.id ? "primary" : "text"}
+                    style={styles.tabLabel}
                   >
                     {tab.label}
-                  </Text>
+                  </AppText>
                 </Pressable>
               </TabTrigger>
             );

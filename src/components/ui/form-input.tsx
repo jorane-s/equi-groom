@@ -2,7 +2,6 @@ import {
   Pressable,
   StyleProp,
   StyleSheet,
-  Text,
   TextInput,
   TextInputProps,
   View,
@@ -18,6 +17,8 @@ import {
 import { Image, ImageSource } from "expo-image";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { AppText } from "@/components/ui/app-text";
+import { FONTS } from "@/constants/typography";
 
 type FormInputProps<T extends FieldValues> = Omit<
   TextInputProps,
@@ -62,9 +63,6 @@ export function FormInput<T extends FieldValues>({
       marginBottom: 12,
     },
     label: {
-      fontFamily: "Fredoka_600SemiBold",
-      fontSize: 14,
-      color: colors.heading,
       marginBottom: 6,
       marginLeft: 2,
     },
@@ -90,8 +88,9 @@ export function FormInput<T extends FieldValues>({
       width: 22,
       marginHorizontal: 4,
     },
+    // Pas de lineHeight sur un TextInput : décale le texte saisi sur iOS
     input: {
-      fontFamily: "Quicksand_500Medium",
+      fontFamily: FONTS.body,
       fontSize: 15,
       color: colors.heading,
       flex: 1,
@@ -101,17 +100,7 @@ export function FormInput<T extends FieldValues>({
     toggle: {
       padding: 6,
     },
-    hint: {
-      fontFamily: "Quicksand_500Medium",
-      color: colors.muted,
-      fontSize: 12,
-      marginTop: 4,
-      marginLeft: 4,
-    },
-    error: {
-      fontFamily: "Quicksand_500Medium",
-      color: colors.error,
-      fontSize: 12,
+    message: {
       marginTop: 4,
       marginLeft: 4,
     },
@@ -119,9 +108,13 @@ export function FormInput<T extends FieldValues>({
 
   return (
     <View style={[styles.wrapper, style]}>
-      <Text style={styles.label} importantForAccessibility="no">
+      <AppText
+        variant="label"
+        style={styles.label}
+        importantForAccessibility="no"
+      >
         {label}
-      </Text>
+      </AppText>
       <View
         style={[
           styles.inputContainer,
@@ -178,15 +171,21 @@ export function FormInput<T extends FieldValues>({
         )}
       </View>
       {error?.message ? (
-        <Text
-          style={styles.error}
+        <AppText
+          variant="caption"
+          color="error"
+          style={styles.message}
           accessibilityRole="alert"
           accessibilityLiveRegion="polite"
         >
           {error.message}
-        </Text>
+        </AppText>
       ) : (
-        hint && <Text style={styles.hint}>{hint}</Text>
+        hint && (
+          <AppText variant="caption" color="muted" style={styles.message}>
+            {hint}
+          </AppText>
+        )
       )}
     </View>
   );

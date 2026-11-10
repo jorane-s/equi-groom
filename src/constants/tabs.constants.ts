@@ -6,7 +6,7 @@ export const TABS: Tab[] = [
   {
     id: "profil",
     label: "Profil",
-    route: "/(main)/profil",
+    route: "/(main)/profile",
     icon: Profil,
   },
   {

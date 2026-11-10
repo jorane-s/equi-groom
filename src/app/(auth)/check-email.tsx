@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useEffect, useState } from "react";
 import { Link, useLocalSearchParams } from "expo-router";
 import { Image } from "expo-image";
@@ -8,6 +8,8 @@ import { getAuthErrorMessage } from "@/lib/supabase/auth-errors";
 import { useAppTheme } from "@/hooks/use-app-theme";
 import { FormAlert } from "@/components/ui/form-alert";
 import { PrimaryButton } from "@/components/ui/primary-button";
+import { AppText } from "@/components/ui/app-text";
+import { TEXT_VARIANTS } from "@/constants/typography";
 
 const RESEND_COOLDOWN_SECONDS = 60;
 
@@ -65,23 +67,13 @@ export default function CheckEmail() {
       marginBottom: 20,
     },
     title: {
-      fontFamily: "Fredoka_600SemiBold",
-      fontSize: 26,
-      color: colors.heading,
       marginBottom: 20,
       textAlign: "center",
     },
     text: {
-      fontFamily: "Quicksand_500Medium",
-      fontSize: 15,
-      color: colors.muted,
       textAlign: "center",
-      lineHeight: 22,
     },
     email: {
-      fontFamily: "Fredoka_600SemiBold",
-      fontSize: 16,
-      color: colors.heading,
       marginVertical: 6,
       textAlign: "center",
     },
@@ -89,8 +81,8 @@ export default function CheckEmail() {
       marginTop: 24,
     },
     link: {
+      ...TEXT_VARIANTS.link,
       textDecorationLine: "underline",
-      fontFamily: "Fredoka_300Light",
       color: colors.heading,
       marginTop: 10,
     },
@@ -104,19 +96,23 @@ export default function CheckEmail() {
         contentFit="contain"
         accessible={false}
       />
-      <Text style={styles.title} accessibilityRole="header">
+      <AppText variant="h1" style={styles.title} accessibilityRole="header">
         Vérifiez votre boîte mail
-      </Text>
+      </AppText>
 
-      <Text style={styles.text}>
+      <AppText color="muted" style={styles.text}>
         Nous avons envoyé un lien de confirmation
         {email ? " à" : "."}
-      </Text>
-      {email && <Text style={styles.email}>{email}</Text>}
-      <Text style={styles.text}>
+      </AppText>
+      {email && (
+        <AppText variant="h3" style={styles.email}>
+          {email}
+        </AppText>
+      )}
+      <AppText color="muted" style={styles.text}>
         Cliquez dessus pour activer votre compte. Pensez à regarder dans vos
         spams si vous ne le trouvez pas.
-      </Text>
+      </AppText>
 
       {feedback && (
         <FormAlert type={feedback.type} message={feedback.message} />

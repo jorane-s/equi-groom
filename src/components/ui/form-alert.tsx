@@ -1,5 +1,6 @@
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet } from "react-native";
 import { useAppTheme } from "@/hooks/use-app-theme";
+import { AppText } from "@/components/ui/app-text";
 
 type FormAlertProps = {
   type?: "error" | "success";
@@ -16,22 +17,21 @@ export function FormAlert({ type = "error", message }: FormAlertProps) {
       borderRadius: 12,
       padding: 12,
       marginTop: 10,
-      fontFamily: "Quicksand_500Medium",
-      fontSize: 14,
       textAlign: "center",
-      color: type === "error" ? colors.error : colors.success,
       backgroundColor:
         type === "error" ? colors.errorLight : colors.successLight,
     },
   });
 
   return (
-    <Text
+    <AppText
+      variant="small"
+      color={type}
       style={styles.alert}
       accessibilityRole="alert"
       accessibilityLiveRegion="polite"
     >
       {message}
-    </Text>
+    </AppText>
   );
 }

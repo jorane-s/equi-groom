@@ -7,6 +7,12 @@ module.exports = {
   darkMode: "class",
   theme: {
     extend: {
+      // Synchronisé avec FONTS (src/constants/typography.ts)
+      fontFamily: {
+        title: ["Fredoka_600SemiBold"],
+        "title-light": ["Fredoka_300Light"],
+        body: ["Quicksand_500Medium"],
+      },
       colors: {
         primary: {
           DEFAULT: "var(--primary-color-default)",
